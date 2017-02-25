@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>News</title>
+</head>
+<style>
+    body {
+        background-color: lightgray;
+    }
+
+    h1 {
+        color: black;
+        padding-top: 20px;
+        padding-left: 20px;
+    }
+
+    .link-black {
+        padding-right: 5px;
+        padding-left: 5px;
+        padding-bottom: 2px;
+        padding-top: 2px;
+        background-color: black;
+        color: white;
+        display: inline-block;
+        font-size: 16px;
+        line-height: 1.5;
+        text-align: center;
+        white-space: nowrap;
+        cursor: pointer;
+        border-radius: 4px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        text-decoration: none;
+    }
+
+    .link-green {
+        padding-right: 5px;
+        padding-left: 5px;
+        padding-bottom: 2px;
+        padding-top: 2px;
+        background-color: limegreen;
+        color: black;
+        display: inline-block;
+        font-size: 16px;
+        line-height: 1.5;
+        text-align: center;
+        white-space: nowrap;
+        cursor: pointer;
+        border-radius: 4px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        text-decoration: none;
+    }
+
+    #header {
+        background-color: darkgray;
+        margin-left: -8px;
+        margin-top: -22px;
+    }
+    #inButton{
+        margin-right: -4px;
+        background-color: white;
+        color: black;
+        font-size: 16px;
+        line-height: 1.5;
+        cursor: pointer;
+        border-radius: 4px;
+        border: 1px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    #outButton{
+        background-color: limegreen;
+        color: black;
+        font-size: 16px;
+        line-height: 1.5;
+        cursor: pointer;
+        border-radius: 4px;
+        border: 1px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    #controlButtons{
+        float: right;
+    }
+    .my-flex-container{
+        display: flex;
+        height: 24px;
+
+    }
+    .my-flex-block{
+        width: 100px;
+        height: 20px;
+    }
+</style>
+<body>
+<div id="header">
+    <h1>NEWS</h1>
+    <div id="controlButtons">
+        <button id="inButton">Sign in</button>
+        <button id="outButton">Sign up</button>
+        <button id="logButton">Log out</button>
+    </div>
+    <div class="my-flex-container">
+        <a href="https://www.vk.com/" class="link-black my-flex-block">Add news</a>
+        <a href="https://www.vk.com/" class="link-green my-flex-block">Home</a>
+        <a href="https://www.vk.com/" class="link-green my-flex-block">Categories</a>
+        <a href="https://www.vk.com/" class="link-green my-flex-block">Blogs</a>
+        <a href="https://www.vk.com/" class="link-green my-flex-block">World news</a>
+        <a href="https://www.vk.com/" class="link-green my-flex-block">Local news</a>
+    </div>
+</div>
+</body>
+</html>
