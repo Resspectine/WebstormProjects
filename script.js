@@ -139,6 +139,39 @@ var Articles = [{
     Author: "Газета.Ru",
     Content: "Южная Корея просила Россию найти четырех подозреваемых в убийстве Ким Чен Нама, сводного брата северокорейского лидера, до того как они вернутся в Пхеньян, пишет газета JoongAng Ilbo. Четверо граждан КНДР (Ли Чжи Хён, Ли Чжэ Нам, Хон Чон Хак и О Чжон Гиль) покинули Малайзию, воспользовавшись авиарейсами через Джакарту, Дубай, Москву и Владивосток. По данным источника издания в дипломатических кругах, Сеул впервые обратился к Москве с просьбой в срочном порядке выяснить местонахождение и задержать подозреваемых для проверки их личностей."
 }];
+function getArticles(skip, top, fileConfig) {
+    skip = skip || 0;
+    top = top || 10;
+    Articles.sort(function (a, b) {
+        return a.CreatedAt - b.CreatedAt;
+    });
+    var sortedArticles = [];
+    if (fileConfig != null) {
+        if (fileConfig.Author == null && fileConfig.CreatedAt == null) {
+            for (var i = skip, j = 0; i < top; i++, j++) {
+                sortedArticles[j] = Articles[i];
+            }
+        }
+        else if (fileConfig.Author == null) {
+            for (i = skip, j = 0; i < top; i++, j++)
+                if (fileConfig.CreatedAt === Articles[i].CreatedAt) {
+                    sortedArticles[j] = Articles[i];
+                }
+        }
+        else {
+            for (i = skip, j = 0; i < top; i++, j++) {
+                if (fileConfig.Author === Articles[i].Author) {
+                    sortedArticles[j] = Articles[i];
+                }
+            }
+        }
+    }
+    else
+        for (i = skip, j = 0; i < top; i++, j++) {
+            sortedArticles[j] = Articles[i];
+        }
+    return sortedArticles;
+}
 function getArticle(id) {
     var rez;
     Articles.forEach(function (item, i, arr) {
@@ -147,7 +180,8 @@ function getArticle(id) {
         }
     });
     return rez || false;
-};
+}
+
 function validateArticle(article) {
     if (article.id === "")
         return false;
@@ -163,34 +197,46 @@ function validateArticle(article) {
         return false;
     return true;
 }
+
 function addArticle(arr) {
-    if(validateArticle(arr)){
+    if (validateArticle(arr)) {
         Articles.push(arr);
         return true;
     }
     else
         return false;
 }
+
 function editArticle(id, arr) {
     var changeArticle = getArticle(id);
-    if(arr.Title!=null){
-        changeArticle.Title=arr.Title;
+    if (arr.Title != null) {
+        changeArticle.Title = arr.Title;
     }
-    if(arr.Summary!=null){
-        changeArticle.Summary=arr.Summary;
+    if (arr.Summary != null) {
+        changeArticle.Summary = arr.Summary;
     }
-    if(arr.Content!=null){
-        changeArticle.Content=arr.Content;
+    if (arr.Content != null) {
+        changeArticle.Content = arr.Content;
     }
     return validateArticle(changeArticle);
 }
+
 function removeArticle(id) {
     delete Articles[Articles.indexOf(getArticle(id))];
 }
-var ar = {Id: "21", Title: "h", Summary: "h", CreatedAt: new Date("2017-02-28T10:45:00+03:00"), Author: "u", Content: "y"};
+
+var ar = {
+    Id: "21",
+    Title: "h",
+    Summary: "h",
+    CreatedAt: new Date("2017-02-28T10:45:00+03:00"),
+    Author: "u",
+    Content: "y"
+};
 console.log(addArticle(ar));
 console.log(getArticle(21));
 console.log(editArticle(21,{Title: "Resspect", Summary: "Not resspect"}));
 console.log(getArticle(21));
+console.log(Articles);
+console.log(getArticles(2,5,{Author: "TUT.BY"}));
 removeArticle(21);
-console.log(getArticle(21));
