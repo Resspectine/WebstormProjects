@@ -142,9 +142,6 @@ var Articles = [{
 function getArticles(skip, top, fileConfig) {
     skip = skip || 0;
     top = top || 10;
-    Articles.sort(function (a, b) {
-        return a.CreatedAt - b.CreatedAt;
-    });
     var sortedArticles = [];
     if (fileConfig != null) {
         if (fileConfig.Author == null && fileConfig.CreatedAt == null) {
@@ -170,6 +167,9 @@ function getArticles(skip, top, fileConfig) {
         for (i = skip, j = 0; i < top; i++, j++) {
             sortedArticles[j] = Articles[i];
         }
+    sortedArticles.sort(function (a, b) {
+        return a.CreatedAt - b.CreatedAt;
+    });
     return sortedArticles;
 }
 function getArticle(id) {
