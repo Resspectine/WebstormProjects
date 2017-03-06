@@ -314,7 +314,7 @@ function editArticle(id, arr) {
 }
 
 function removeArticle(id) {
-    delete Articles[Articles.indexOf(getArticle(id))];
+   Articles.splice(Articles.indexOf(getArticle(id)),Articles.indexOf(getArticle(id)));
 }
 
 var ar = {
@@ -327,8 +327,8 @@ var ar = {
 };
 console.log(addArticle(ar));
 console.log(getArticle(21));
-console.log(editArticle(21,{Title: "Resspect", Summary: "Not resspect"}));
+console.log(editArticle(21, {Title: "Resspect", Summary: "Not resspect"}));
 console.log(getArticle(21));
 console.log(Articles);
-console.log(getArticles(2,5,{Author: "TUT.BY"}));
+console.log(getArticles(2, 5, {Author: "TUT.BY"}));
 removeArticle(21);
