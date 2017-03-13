@@ -103,6 +103,7 @@ h1 {
 .log-button {
     margin-right: -4px;
 
+
     background-color: #fff;
     color: #000;
     font-size: 16px;
@@ -110,13 +111,16 @@ h1 {
 
     border-radius: 4px;
     border: 1px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
 
     cursor: pointer;
 }
 
 .login-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 500px;
+
     margin-top: -24px;
     margin-right: 35px;
 
@@ -217,12 +221,18 @@ footer {
 }
 
 .delete {
-    margin-bottom: 0;
     margin-left: 380px;
 }
 
+.change {
+    position: relative;
+    margin-left: -41px;
+    top: 18px;
+}
+
 .readMore {
-    margin-left: 490px;
+    position: relative;
+    left:170px;
 }
 
 .sort {
@@ -236,4 +246,68 @@ footer {
 
 .navigation {
     margin-left: 30%;
+}
+
+.change-news {
+    position: fixed;
+    top: 10%;
+    z-index: 999;
+    width: 900px;
+    left: 26.5625%;
+
+    background: #fff;
+}
+
+.text-title {
+    margin: 20px 20px 20px 20px;
+    left: 0;
+    width: 850px;
+}
+
+.text-summary {
+    left: 0;
+    margin: 0 20px 20px 20px;
+    width: 850px;
+}
+
+.text-content {
+    margin: 0 20px 20px 20px;
+    left: 0;
+    width: 850px;
+    height: 500px;
+}
+
+.send-news {
+    float: right;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    background-color: #00bfff;
+    color: #000;
+
+    font-weight: bold;
+    font-size: 20px;
+    line-height: 1.5;
+
+    border-radius: 2px;
+    border: 1px;
+
+    cursor: pointer;
+}
+.close-window{
+    float: right;
+    margin-right: 20px;
+    background-color: #f00;
+    color: #000;
+
+    font-weight: bold;
+    font-size: 20px;
+
+    border-radius: 2px;
+    border: 1px;
+
+    cursor: pointer;
+}
+.nickname{
+    font-size: 30px;
+    margin: 0 0 0 -80px;
 }

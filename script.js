@@ -1,4 +1,5 @@
-var newsService = (function () {
+var user = "Василий Иванов";
+var articlesService = (function () {
     var Articles = [{
         Id: "1",
         Title: "Что изменится с 1 марта: подорожают сигареты и звонки со стационарных телефонов",
@@ -269,7 +270,7 @@ var newsService = (function () {
 
     function getArticle(id) {
         var rez;
-        Articles.forEach(function (item, i, arr) {
+        Articles.forEach(function (item) {
             if (id == item.Id) {
                 rez = item;
             }
@@ -304,13 +305,13 @@ var newsService = (function () {
 
     function editArticle(id, arr) {
         var changeArticle = getArticle(id);
-        if (arr.Title != null) {
+        if (arr.Title != "") {
             changeArticle.Title = arr.Title;
         }
-        if (arr.Summary != null) {
+        if (arr.Summary != "") {
             changeArticle.Summary = arr.Summary;
         }
-        if (arr.Content != null) {
+        if (arr.Content != "") {
             changeArticle.Content = arr.Content;
         }
         return validateArticle(changeArticle);
@@ -320,45 +321,126 @@ var newsService = (function () {
         Articles.splice(Articles.indexOf(getArticle(id)), Articles.indexOf(getArticle(id)));
     }
 
-    /* <div class="short-news">
-     <img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">
-     <a class="delete" href="IMG_126533.jpg">delete</a>
-     <h2 class="head-short-news">В регионах прошли новые акции против декрета о тунеядцах</h2>
-     <p class="short-text">Напомним, вечером 17 февраля в центре Минска в несанкционированном «Марше рассерженных
-     белорусов» приняли участие более двух тысяч человек, которые требовали от властей отменить декрет о
-     тунеядстве, а также другие меры, которые бьют по кошелькам людей. Акция завершилась без серьезных
-     инцидент</p>
-     <a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>
-     <footer>25.05.2017 by Author1</footer>
-     <hr>
-     </div>*/
+    return {
+        getArticles: getArticles,
+        getArticle: getArticle,
+        validateArticle: validateArticle,
+        addArticle: addArticle,
+        editArticle: editArticle,
+        removeArticle: removeArticle
+    }
+}());
+/* <div class="short-news">
+ <img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">
+ <a class="delete" href="IMG_126533.jpg">delete</a>
+ <h2 class="head-short-news">В регионах прошли новые акции против декрета о тунеядцах</h2>
+ <p class="short-text">Напомним, вечером 17 февраля в центре Минска в несанкционированном «Марше рассерженных
+ белорусов» приняли участие более двух тысяч человек, которые требовали от властей отменить декрет о
+ тунеядстве, а также другие меры, которые бьют по кошелькам людей. Акция завершилась без серьезных
+ инцидент</p>
+ <a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>
+ <footer>25.05.2017 by Author1</footer>
+ <hr>
+ </div>*/
+var newsService = (function () {
+    var count = 1;
+
     function addNews(id) {
-        var article = getArticle(id);
+        id = id || count;
+        var article = articlesService.getArticle(id);
+        var date = new Date(article.CreatedAt);
         var template = document.createElement('div');
-        template.className= 'short-news';
-        template.innerHTML='<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">'+
-            '<a class="delete" href="IMG_126533.jpg">delete</a>'+
-           ' <h2 class="head-short-news">В регионах прошли новые акции против декрета о тунеядцах</h2>'+
-        '<p class="short-text">Напомним, вечером 17 февраля в центре Минска в несанкционированном «Марше рассерженных'+
-        белорусов» приняли участие более двух тысяч человек, которые требовали от властей отменить декрет о
-        тунеядстве, а также другие меры, которые бьют по кошелькам людей. Акция завершилась без серьезных
-        инцидент</p>
-        <a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>
-        <footer>25.05.2017 by Author1</footer>
-        <hr>'
-            //template[0].getElementsByClassName("short-text")[0].textContent = article.Summary;
-        //template[0].getElementsByClassName("head-short-news")[0].textContent = article.Title;
-        //var date = new Date(article.CreatedAt);
-        //template[0].getElementsByTagName("footer")[0].textContent = date.getDate() + '.' + date.getMonth() + '.' +
-        //    date.getFullYear() + ' by ' + article.Author;
-        console.log(template);
+        template.className = 'short-news';
+        template.id = id;
+        if (user != null) {
+            template.innerHTML = '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">' +
+                '<a class="delete" href="#" onclick="newsService.deleteNews(' + article.Id + ');">delete</a>' +
+                '<a class="change" href="#" onclick="newsService.changeNews(' + article.Id + ');">change</a>' +
+                '<h2 class="head-short-news">' + article.Title + '</h2>' +
+                '<p class="short-text">' + article.Summary + '</p>' +
+                '<a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>' +
+                '<footer>' + date.getDate() + '.' + date.getMonth() + '.' +
+                date.getFullYear() + ' by ' + article.Author + '</footer>' +
+                '<hr>';
+        }
+        else {
+            template.innerHTML = '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">' +
+                '<h2 class="head-short-news">' + article.Title + '</h2>' +
+                '<p class="short-text">' + article.Summary + '</p>' +
+                '<a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>' +
+                '<footer>' + date.getDate() + '.' + date.getMonth() + '.' +
+                date.getFullYear() + ' by ' + article.Author + '</footer>' +
+                '<hr>';
+        }
+        document.getElementsByClassName('news-feed')[0].appendChild(template);
+        if (id === count)
+            count++;
+        return template;
+    }
+
+    function show() {
+        var articles = articlesService.getArticles(1);
+        articles.forEach(function (item) {
+            addNews(item.Id);
+        });
     }
 
     function deleteNews(id) {
+        var temp = document.getElementById(id);
+        document.getElementsByClassName('news-feed')[0].removeChild(temp);
+    }
 
+    function changeNews(id) {
+        var template = document.createElement('div');
+        template.className = 'change-news';
+        template.id = 'changing';
+        template.innerHTML =
+            '<button class="close-window" onclick="newsService.closeChanging();">&#10006;</button>' +
+            '<textarea placeholder="Title" class="text-title" title="Title"></textarea>' +
+            '<textarea placeholder="Summary" class="text-summary" title="Summary"></textarea>' +
+            '<textarea placeholder="Content" class="text-content" title="Content"></textarea>' +
+            '<button class="send-news" onclick="newsService.completeChanging(' + id + '); newsService.closeChanging();"><i class="fa fa-paper-plane"></i>Send</button>';
+        document.getElementsByClassName('news-feed')[0].appendChild(template);
+    }
+
+    function closeChanging() {
+        var temp = document.getElementById('changing');
+        document.getElementsByClassName('news-feed')[0].removeChild(temp);
+    }
+
+    function completeChanging(id) {
+        var temp = document.getElementById('changing');
+        var title = temp.getElementsByClassName('text-title')[0].value;
+        var summary = temp.getElementsByClassName('text-summary')[0].value;
+        var content = temp.getElementsByClassName('text-content')[0].value;
+        var article = {
+            Title: title,
+            Summary: summary,
+            Content: content
+        };
+        articlesService.editArticle(id, article);
+        var news = addNews(id);
+        var oldChild = document.getElementById(id);
+        document.getElementsByClassName('news-feed')[0].replaceChild(news, oldChild);
+        console.log(id);
     }
 
     return {
-        addNews: addNews
+        addNews: addNews,
+        deleteNews: deleteNews,
+        show: show,
+        changeNews: changeNews,
+        closeChanging: closeChanging,
+        completeChanging: completeChanging
     }
 }());
+window.onload= function () {
+    if(user!=null){
+        var inButton = document.getElementsByClassName('in-button')[0].setAttribute('hidden','hidden');
+        var outButton = document.getElementsByClassName('out-button')[0].setAttribute('hidden','hidden');
+        document.getElementsByClassName('nickname')[0].textContent=user;
+    } else{
+        var logButton = document.getElementsByClassName('log-button')[0].setAttribute('hidden','hidden');
+    }
+};
+newsService.addNews(5);
