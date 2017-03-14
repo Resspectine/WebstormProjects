@@ -55,7 +55,7 @@ h1 {
 }
 
 .header {
-    margin: -30px -8px 20px -8px;
+    margin: -30px -8px 60px -8px;
 
     background-color: #a9a9a9;
     height: 130px;
@@ -195,19 +195,20 @@ h1 {
 }
 
 .head-short-news {
-    margin-top: -20px;
     margin-bottom: 0;
     max-width: 550px;
 }
 
 img {
+    margin: 10px 10px 10px 10px;
     width: 150px;
     height: 100px;
 }
 
 .short-news {
-    margin-top: 60px;
-    margin-left: 30%;
+    background: #fff;
+    border-radius: 8px;
+    margin: 30px 23% 0 30%;
 }
 
 hr {
@@ -220,14 +221,10 @@ footer {
     margin-top: 0;
 }
 
-.delete {
-    margin-left: 380px;
-}
 
-.change {
+.edit {
     position: relative;
-    margin-left: -41px;
-    top: 18px;
+    font-size: 80px;
 }
 
 .readMore {
@@ -236,8 +233,7 @@ footer {
 }
 
 .sort {
-    margin-bottom: 0;
-    margin-left: 30%;
+    margin: -40px 0 0 10%;
 }
 
 .select-sort {
@@ -249,7 +245,7 @@ footer {
 }
 
 .change-news {
-    position: fixed;
+    position: absolute;
     top: 10%;
     z-index: 999;
     width: 900px;
@@ -310,4 +306,12 @@ footer {
 .nickname{
     font-size: 30px;
     margin: 0 0 0 -80px;
+}
+
+.flex-interface{
+    margin-right: 10px;
+    float: right;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-around;
 }

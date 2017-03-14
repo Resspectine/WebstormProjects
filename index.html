@@ -6,7 +6,6 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="script.js"></script>
 </head>
 <body>
 <div class="header">
@@ -33,13 +32,22 @@
         <input class="search-button" type="submit" value="Найти"></p>
 </div>
 <div class="sort">
-    <select class="select-sort">
+    <select title="sort" class="select-sort">
         <option>дате добавления</option>
         <option>имени автора</option>
     </select>
     <p class="select-text">Сортировать по: </p>
 </div>
 <div class="news-feed">
+    <!--<div class="change-news">
+        <button class="close-window" onclick="newsService.closeChanging();">&#10006;</button>
+        <input type="text" placeholder="Title" class="text-title" title="Title">
+        <input type="text" placeholder="Summary" class="text-summary" title="Summary">
+        <textarea placeholder="Content" class="text-content" title="Content"></textarea>
+        <button class="send-news" onclick="newsService.completeChanging(' + id + '); newsService.closeChanging();">
+            <i class="fa fa-paper-plane"></i>Send
+        </button>
+    </div>-->
 </div>
 <!--<div class="navigation">
     <a href="https://www.vk.com/" class="">1</a>
@@ -49,5 +57,6 @@
     <a href="https://www.vk.com/" class="">5</a>
 </div>-->
 <footer>Created by MS<br>resspectyn@gmail.com<br>BSU, Minsk, 2017</footer>
+<script src="script.js"></script>
 </body>
 </html>

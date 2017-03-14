@@ -332,15 +332,12 @@ var articlesService = (function () {
 }());
 /* <div class="short-news">
  <img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">
- <a class="delete" href="IMG_126533.jpg">delete</a>
- <h2 class="head-short-news">В регионах прошли новые акции против декрета о тунеядцах</h2>
- <p class="short-text">Напомним, вечером 17 февраля в центре Минска в несанкционированном «Марше рассерженных
- белорусов» приняли участие более двух тысяч человек, которые требовали от властей отменить декрет о
- тунеядстве, а также другие меры, которые бьют по кошелькам людей. Акция завершилась без серьезных
- инцидент</p>
- <a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>
- <footer>25.05.2017 by Author1</footer>
- <hr>
+ '<a class="delete" href="#" onclick="newsService.deleteNews(' + article.Id + ');">delete</a>
+ '<a class="change" href="#" onclick="newsService.changeNews(' + article.Id + ');">change</a>
+ '<h2 class="head-short-news">' + article.Title + '</h2>
+ '<p class="short-text">' + article.Summary + '</p>
+ '<a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>
+ '<footer></footer>'
  </div>*/
 var newsService = (function () {
     var count = 1;
@@ -354,16 +351,18 @@ var newsService = (function () {
         template.id = id;
         if (user != null) {
             template.innerHTML = '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">' +
-                '<a class="delete" href="#" onclick="newsService.deleteNews(' + article.Id + ');">delete</a>' +
-                '<a class="change" href="#" onclick="newsService.changeNews(' + article.Id + ');">change</a>' +
                 '<h2 class="head-short-news">' + article.Title + '</h2>' +
                 '<p class="short-text">' + article.Summary + '</p>' +
                 '<a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>' +
+                '<div class="flex-interface">' +
+                '<a href="#" onclick="newsService.deleteNews(' + article.Id + ');">'+
+                '<i class="fa fa-trash-o edit"></i></a>' +
+                '<a href="#" onclick="newsService.changeNews(' + article.Id + ');">'+
+                '<i class="fa fa-pencil-square-o edit"></i></a>' +
+                '</div>' +
                 '<footer>' + date.getDate() + '.' + date.getMonth() + '.' +
-                date.getFullYear() + ' by ' + article.Author + '</footer>' +
-                '<hr>';
-        }
-        else {
+                date.getFullYear() + ' by ' + article.Author + '</footer>';
+        } else {
             template.innerHTML = '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">' +
                 '<h2 class="head-short-news">' + article.Title + '</h2>' +
                 '<p class="short-text">' + article.Summary + '</p>' +
@@ -396,10 +395,11 @@ var newsService = (function () {
         template.id = 'changing';
         template.innerHTML =
             '<button class="close-window" onclick="newsService.closeChanging();">&#10006;</button>' +
-            '<textarea placeholder="Title" class="text-title" title="Title"></textarea>' +
-            '<textarea placeholder="Summary" class="text-summary" title="Summary"></textarea>' +
+            '<input type="text" placeholder="Title" class="text-title" title="Title">' +
+            '<input type="text" placeholder="Summary" class="text-summary" title="Summary">' +
             '<textarea placeholder="Content" class="text-content" title="Content"></textarea>' +
-            '<button class="send-news" onclick="newsService.completeChanging(' + id + '); newsService.closeChanging();"><i class="fa fa-paper-plane"></i>Send</button>';
+            '<button class="send-news" onclick="newsService.completeChanging(' + id + '); newsService.closeChanging();">'+
+            '<i class="fa fa-paper-plane"></i>Send</button>';
         document.getElementsByClassName('news-feed')[0].appendChild(template);
     }
 
@@ -434,13 +434,13 @@ var newsService = (function () {
         completeChanging: completeChanging
     }
 }());
-window.onload= function () {
-    if(user!=null){
-        var inButton = document.getElementsByClassName('in-button')[0].setAttribute('hidden','hidden');
-        var outButton = document.getElementsByClassName('out-button')[0].setAttribute('hidden','hidden');
-        document.getElementsByClassName('nickname')[0].textContent=user;
-    } else{
-        var logButton = document.getElementsByClassName('log-button')[0].setAttribute('hidden','hidden');
+window.onload = function () {
+    if (user != null) {
+        var inButton = document.getElementsByClassName('in-button')[0].setAttribute('hidden', 'hidden');
+        var outButton = document.getElementsByClassName('out-button')[0].setAttribute('hidden', 'hidden');
+        document.getElementsByClassName('nickname')[0].textContent = user;
+    } else {
+        var logButton = document.getElementsByClassName('log-button')[0].setAttribute('hidden', 'hidden');
     }
 };
 newsService.addNews(5);
