@@ -355,10 +355,10 @@ var newsService = (function () {
                 '<p class="short-text">' + article.Summary + '</p>' +
                 '<a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>' +
                 '<div class="flex-interface">' +
-                '<a href="#" onclick="newsService.deleteNews(' + article.Id + ');">'+
-                '<i class="fa fa-trash-o edit"></i></a>' +
                 '<a href="#" onclick="newsService.changeNews(' + article.Id + ');">'+
-                '<i class="fa fa-pencil-square-o edit"></i></a>' +
+                '<i class="fa fa-pencil-square-o fa-2x"></i></a>' +
+                '<a href="#" onclick="newsService.deleteNews(' + article.Id + ');">'+
+                '<i class="fa fa-trash-o fa-2x" aria-hidden="true"></i></a>' +
                 '</div>' +
                 '<footer>' + date.getDate() + '.' + date.getMonth() + '.' +
                 date.getFullYear() + ' by ' + article.Author + '</footer>';
