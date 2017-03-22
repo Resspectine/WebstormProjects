@@ -20,13 +20,13 @@
             <button class="log-button">Log out</button>
         </div>
     </div>
-    <div class="my-flex-container">
-        <a class="link-black my-flex-block" onclick="newsService.addNews(null);">Добавить новость</a>
-        <a onclick="newsService.show();" class="link-green my-flex-block">Главная страница</a>
-        <a href="https://www.vk.com/" class="link-green my-flex-block">Категории</a>
-        <a href="https://www.vk.com/" class="link-green my-flex-block">Блог</a>
-        <a href="https://www.vk.com/" class="link-green my-flex-block">World news</a>
-        <a href="https://www.vk.com/" class="link-green my-flex-block">Local news</a>
+    <div class="navigation-bar">
+        <a id="add-news" class="link-black my-flex-block">Добавить новость</a>
+        <a id="main-page" class="link-green my-flex-block">Главная страница</a>
+        <a id="categories" class="link-green my-flex-block">Категории</a>
+        <a id="blog" class="link-green my-flex-block">Блог</a>
+        <a id="world-news" class="link-green my-flex-block">World news</a>
+        <a id="local-news" class="link-green my-flex-block">Local news</a>
     </div>
     <p class="search"><input class="search-bar" type="search" name="q" placeholder="Поиск по сайту">
         <input class="search-button" type="submit" value="Найти"></p>
@@ -39,24 +39,15 @@
     <p class="select-text">Сортировать по: </p>
 </div>
 <div class="news-feed">
-    <!--<div class="change-news">
-        <button class="close-window" onclick="newsService.closeChanging();">&#10006;</button>
-        <input type="text" placeholder="Title" class="text-title" title="Title">
-        <input type="text" placeholder="Summary" class="text-summary" title="Summary">
-        <textarea placeholder="Content" class="text-content" title="Content"></textarea>
-        <button class="send-news" onclick="newsService.completeChanging(' + id + '); newsService.closeChanging();">
-            <i class="fa fa-paper-plane"></i>Send
-        </button>
+    <!--<div class="navigation">
+        <a href="https://www.vk.com/" class="">1</a>
+        <a href="https://www.vk.com/" class="">2</a>
+        <a href="https://www.vk.com/" class="">3</a>
+        <a href="https://www.vk.com/" class="">4</a>
+        <a href="https://www.vk.com/" class="">5</a>
     </div>-->
 </div>
-<!--<div class="navigation">
-    <a href="https://www.vk.com/" class="">1</a>
-    <a href="https://www.vk.com/" class="">2</a>
-    <a href="https://www.vk.com/" class="">3</a>
-    <a href="https://www.vk.com/" class="">4</a>
-    <a href="https://www.vk.com/" class="">5</a>
-</div>-->
 <footer>Created by MS<br>resspectyn@gmail.com<br>BSU, Minsk, 2017</footer>
-<script src="script.js"></script>
 </body>
 </html>
+<script src="script.js"></script>

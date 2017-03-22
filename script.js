@@ -1,4 +1,4 @@
-var user = "Василий Иванов";
+var user = "Иван";
 var articlesService = (function () {
     var Articles = [{
         Id: "1",
@@ -69,7 +69,7 @@ var articlesService = (function () {
         Content: "В итоге комиссия утвердила прежний план застройки зоны, куда входит и площадка бизнес-центра" +
         " на улице Мирошниченко. Лишь один человек выступил против, еще один — воздержался."
     }, {
-        Id: "7",
+        Id: '7',
         Title: "Шуневич рассказал, в каких городах появятся центры временного содержания незаконных мигрантов",
         Summary: "В Беларуси центры временного содержания незаконных мигрантов будут созданы в Витебске, Гомеле" +
         " и Лиде. Об этом в интервью БЕЛТА рассказал министр внутренних дел Игорь Шуневич. По его " +
@@ -238,30 +238,24 @@ var articlesService = (function () {
         skip = skip || 0;
         top = top || 10;
         var sortedArticles = [];
-        if (fileConfig != null) {
-            if (fileConfig.Author == null && fileConfig.CreatedAt == null) {
-                for (var i = skip, j = 0; i < top; i++, j++) {
-                    sortedArticles[j] = Articles[i];
-                }
+        if (fileConfig) {
+            if (!fileConfig.Author && !fileConfig.CreatedAt) {
+                sortedArticles = Articles.slice(skip, top);
             }
-            else if (fileConfig.Author == null) {
-                for (i = skip, j = 0; i < top; i++, j++)
-                    if (fileConfig.CreatedAt === Articles[i].CreatedAt) {
-                        sortedArticles[j] = Articles[i];
-                    }
+            else if (fileConfig.Author) {
+                sortedArticles = arr.filter(function (number) {
+                    return fileConfig.CreatedAt.toString() === number.CreatedAt.toString();
+                });
             }
             else {
-                for (i = skip, j = 0; i < top; i++, j++) {
-                    if (fileConfig.Author === Articles[i].Author) {
-                        sortedArticles[j] = Articles[i];
-                    }
-                }
+                sortedArticles = arr.filter(function (number) {
+                    return fileConfig.Author === number.Author;
+                });
             }
         }
-        else
-            for (i = skip, j = 0; i < top; i++, j++) {
-                sortedArticles[j] = Articles[i];
-            }
+        else {
+            sortedArticles = Articles.slice(skip, top);
+        }
         sortedArticles.sort(function (a, b) {
             return a.CreatedAt - b.CreatedAt;
         });
@@ -269,52 +263,41 @@ var articlesService = (function () {
     }
 
     function getArticle(id) {
-        var rez;
+        var result = false;
         Articles.forEach(function (item) {
-            if (id == item.Id) {
-                rez = item;
+            if (id === item.Id) {
+                result = item;
             }
         });
-        return rez || false;
+        return result || false;
     }
 
     function validateArticle(article) {
-        if (article.id === "")
-            return false;
-        if (article.Title === "")
-            return false;
-        if (article.Summary === "")
-            return false;
-        if (article.CreatedAt == null)
-            return false;
-        if (article.Author === "")
-            return false;
-        if (article.Content === "")
-            return false;
-        return true;
+        return Object.values(article).every(function (item) {
+            return item !== "";
+        });
     }
 
-    function addArticle(arr) {
-        if (validateArticle(arr)) {
-            Articles.push(arr);
+    function addArticle(article) {
+        if (validateArticle(article)) {
+            Articles.push(article);
             return true;
         }
-        else
+        else {
             return false;
+        }
     }
 
-    function editArticle(id, arr) {
-        var changeArticle = getArticle(id);
-        if (arr.Title != "") {
-            changeArticle.Title = arr.Title;
+    function editArticle(id, article) {
+        if (validateArticle(article)) {
+            getArticle(id).Title = article.Title;
+            getArticle(id).Summary = article.Summary;
+            getArticle(id).Content = article.Content;
         }
-        if (arr.Summary != "") {
-            changeArticle.Summary = arr.Summary;
+        else {
+            console.log("false");
+            return false;
         }
-        if (arr.Content != "") {
-            changeArticle.Content = arr.Content;
-        }
-        return validateArticle(changeArticle);
     }
 
     function removeArticle(id) {
@@ -330,55 +313,132 @@ var articlesService = (function () {
         removeArticle: removeArticle
     }
 }());
-/* <div class="short-news">
- <img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">
- '<a class="delete" href="#" onclick="newsService.deleteNews(' + article.Id + ');">delete</a>
- '<a class="change" href="#" onclick="newsService.changeNews(' + article.Id + ');">change</a>
- '<h2 class="head-short-news">' + article.Title + '</h2>
- '<p class="short-text">' + article.Summary + '</p>
- '<a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>
- '<footer></footer>'
- </div>*/
 var newsService = (function () {
-    var count = 1;
 
     function addNews(id) {
-        id = id || count;
         var article = articlesService.getArticle(id);
-        var date = new Date(article.CreatedAt);
         var template = document.createElement('div');
         template.className = 'short-news';
         template.id = id;
-        if (user != null) {
+        if (user) {
             template.innerHTML = '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">' +
                 '<h2 class="head-short-news">' + article.Title + '</h2>' +
                 '<p class="short-text">' + article.Summary + '</p>' +
-                '<a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>' +
+                '<a class="read-more" href="#">read more</a>' +
                 '<div class="flex-interface">' +
-                '<a href="#" onclick="newsService.changeNews(' + article.Id + ');">'+
+                '<a href="#" id="edit">' +
                 '<i class="fa fa-pencil-square-o fa-2x"></i></a>' +
-                '<a href="#" onclick="newsService.deleteNews(' + article.Id + ');">'+
+                '<a href="#" id="delete">' +
                 '<i class="fa fa-trash-o fa-2x" aria-hidden="true"></i></a>' +
                 '</div>' +
-                '<footer>' + date.getDate() + '.' + date.getMonth() + '.' +
-                date.getFullYear() + ' by ' + article.Author + '</footer>';
+                '<footer>' + article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
+                article.CreatedAt.getFullYear() + ' by ' + article.Author + '</footer>';
         } else {
             template.innerHTML = '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">' +
                 '<h2 class="head-short-news">' + article.Title + '</h2>' +
                 '<p class="short-text">' + article.Summary + '</p>' +
-                '<a class="readMore" href="https://news.tut.by/society/533102.html">read more</a>' +
+                '<a class="read-more" href="#">read more</a>' +
                 '<footer>' + date.getDate() + '.' + date.getMonth() + '.' +
-                date.getFullYear() + ' by ' + article.Author + '</footer>' +
-                '<hr>';
+                date.getFullYear() + ' by ' + article.Author + '</footer>';
         }
+        template.addEventListener('click', handleClickOnNews);
         document.getElementsByClassName('news-feed')[0].appendChild(template);
-        if (id === count)
-            count++;
         return template;
     }
 
+    function handleClickOnNews(event) {
+        var parent = event.target.parentNode;
+        if (event.target.className === 'read-more') {
+            openNews(event.currentTarget.id);
+        }
+        if (parent.id === 'edit') {
+            changeNews(event.currentTarget.id);
+        }
+        if (parent.id === 'delete') {
+            deleteNews(event.currentTarget.id);
+        }
+    }
+
+    function handleClickToClose(event) {
+        var button = event.target;
+        if (button.className === 'close-window') {
+            closeWindow(event.currentTarget.id);
+        }
+    }
+
+    function handleClickOnChanging(event) {
+        var button = event.target;
+        if (button.className === 'send-news') {
+            completeChanging(event.target.id);
+        }
+    }
+
+    function handleClickOnCreating(event) {
+        var button = event.target;
+        if (button.className === 'send-news') {
+            createNews(event.currentTarget);
+        }
+    }
+
+    function handleClickOnNavigationBar(event) {
+        var key = event.target.id;
+        switch (key) {
+            case 'add-news':
+                createWindowNews();
+                break;
+        }
+    }
+
+    function createNews(element) {
+        var title = element.getElementsByClassName('create-news-title')[0].value;
+        var summary = element.getElementsByClassName('create-news-summary')[0].value;
+        var content = element.getElementsByClassName('create-news-content')[0].value;
+        var date = new Date();
+        var article = {
+            Id: date.toString(),
+            Title: title,
+            Summary: summary,
+            CreatedAt: date,
+            Author: user,
+            Content: content
+        };
+        if (articlesService.addArticle(article)) {
+            addNews(article.Id);
+        }
+        else {
+            alert("Invalid news");
+        }
+    }
+
+    function createWindowNews() {
+        var blackBackground = document.createElement('div');
+        blackBackground.className = 'half-black';
+        var template = document.createElement('div');
+        template.className = 'create-news';
+        template.id = 'creating';
+        template.innerHTML =
+            '<button class="close-window">&#10006;</button>' +
+            '<div class="flex-all-creations">' +
+            '<div class="flex-creation">' +
+            '<input type="file" class="create-news-image" align="left">' +
+            '<div class="flex-inputs">' +
+            '<input type="text" placeholder="Title" class="create-news-title" title="Title">' +
+            '<input type="text" placeholder="Summary" class="create-news-summary" title="Summary">' +
+            '</div>' +
+            '</div>' +
+            '<textarea placeholder="Content" class="create-news-content" title="Content"></textarea>' +
+            '</div>' +
+            '<button class="send-news" id="">' +
+            '<i class="fa fa-plus"></i>Create' +
+            '</button>';
+        template.addEventListener('click', handleClickToClose);
+        template.addEventListener('click', handleClickOnCreating);
+        document.getElementsByClassName('news-feed')[0].appendChild(template);
+        document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+    }
+
     function show() {
-        var articles = articlesService.getArticles(1);
+        var articles = articlesService.getArticles(0, 3);
         articles.forEach(function (item) {
             addNews(item.Id);
         });
@@ -389,22 +449,49 @@ var newsService = (function () {
         document.getElementsByClassName('news-feed')[0].removeChild(temp);
     }
 
+    function openNews(id) {
+        var blackBackground = document.createElement('div');
+        blackBackground.className = 'half-black';
+        var article = articlesService.getArticle(id);
+        var template = document.createElement('div');
+        template.className = 'show-news';
+        template.id = 'show-news';
+        template.innerHTML =
+            '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" align="left">' +
+            '<button class="close-window">&#10006;</button>' +
+            '<h1 class="show-title" title="Title">' + article.Title + '</h1>' +
+            '<h2 class="show-summary" title="Summary">' + article.Summary + '</h2>' +
+            '<p class="show-content" title="Content">' + article.Content + '</p>' +
+            '<footer>' + article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
+            article.CreatedAt.getFullYear() + ' by ' + article.Author + '</footer>';
+        template.addEventListener('click', handleClickToClose);
+        document.getElementsByClassName('news-feed')[0].appendChild(template);
+        document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+    }
+
     function changeNews(id) {
+        var blackBackground = document.createElement('div');
+        blackBackground.className = 'half-black';
         var template = document.createElement('div');
         template.className = 'change-news';
         template.id = 'changing';
         template.innerHTML =
-            '<button class="close-window" onclick="newsService.closeChanging();">&#10006;</button>' +
+            '<button class="close-window">&#10006;</button>' +
             '<input type="text" placeholder="Title" class="text-title" title="Title">' +
             '<input type="text" placeholder="Summary" class="text-summary" title="Summary">' +
             '<textarea placeholder="Content" class="text-content" title="Content"></textarea>' +
-            '<button class="send-news" onclick="newsService.completeChanging(' + id + '); newsService.closeChanging();">'+
+            '<button class="send-news" id="' + id + '">' +
             '<i class="fa fa-paper-plane"></i>Send</button>';
+        template.addEventListener('click', handleClickToClose);
+        template.addEventListener('click', handleClickOnChanging);
         document.getElementsByClassName('news-feed')[0].appendChild(template);
+        document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
     }
 
-    function closeChanging() {
-        var temp = document.getElementById('changing');
+    function closeWindow(id) {
+        var temp = document.getElementById(id);
+        document.getElementsByClassName('news-feed')[0].removeChild(temp);
+        temp = document.getElementsByClassName('half-black')[0];
         document.getElementsByClassName('news-feed')[0].removeChild(temp);
     }
 
@@ -422,25 +509,26 @@ var newsService = (function () {
         var news = addNews(id);
         var oldChild = document.getElementById(id);
         document.getElementsByClassName('news-feed')[0].replaceChild(news, oldChild);
-        console.log(id);
     }
+
+    document.getElementsByClassName('navigation-bar')[0].addEventListener('click', handleClickOnNavigationBar);
 
     return {
         addNews: addNews,
         deleteNews: deleteNews,
         show: show,
         changeNews: changeNews,
-        closeChanging: closeChanging,
+        closeWindow: closeWindow,
         completeChanging: completeChanging
     }
 }());
 window.onload = function () {
-    if (user != null) {
-        var inButton = document.getElementsByClassName('in-button')[0].setAttribute('hidden', 'hidden');
-        var outButton = document.getElementsByClassName('out-button')[0].setAttribute('hidden', 'hidden');
+    newsService.show();
+    if (user) {
+        document.getElementsByClassName('in-button')[0].setAttribute('hidden', 'hidden');
+        document.getElementsByClassName('out-button')[0].setAttribute('hidden', 'hidden');
         document.getElementsByClassName('nickname')[0].textContent = user;
     } else {
-        var logButton = document.getElementsByClassName('log-button')[0].setAttribute('hidden', 'hidden');
+        document.getElementsByClassName('log-button')[0].setAttribute('hidden', 'hidden');
     }
 };
-newsService.addNews(5);

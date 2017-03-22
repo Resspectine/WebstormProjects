@@ -1,5 +1,4 @@
 body {
-    background-color: #d3d3d3;
 }
 
 h1 {
@@ -26,9 +25,7 @@ h1 {
     font-size: 16px;
     text-decoration: none;
 
-    border-radius: 4px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+    border-radius: 4px 4px 0 0;
 
     white-space: nowrap;
     cursor: pointer;
@@ -46,19 +43,19 @@ h1 {
     line-height: 1.5;
     text-align: center;
 
-    border-radius: 4px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+    border-radius: 4px 4px 0 0;
 
     white-space: nowrap;
     cursor: pointer;
 }
 
 .header {
-    margin: -30px -8px 60px -8px;
-
+    left: 0;
+    z-index: 100;
+    width: 100vw;
+    position: fixed;
     background-color: #a9a9a9;
-    height: 130px;
+    height: 160px;
 }
 
 .in-button {
@@ -69,15 +66,15 @@ h1 {
     font-size: 16px;
     line-height: 1.5;
 
+    border-radius: 4px 0 0 4px;
     border: 1px;
-    border-radius: 4px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
 
     cursor: pointer;
 }
 
 .select-text {
+    background-color: #000;
+
     margin-top: -20px;
 }
 
@@ -87,10 +84,8 @@ h1 {
     font-size: 16px;
     line-height: 1.5;
 
-    border-radius: 4px;
+    border-radius: 0 4px 4px 0;
     border: 1px;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
 
     cursor: pointer;
 }
@@ -103,14 +98,13 @@ h1 {
 .log-button {
     margin-right: -4px;
 
-
     background-color: #fff;
     color: #000;
     font-size: 16px;
     line-height: 1.5;
 
     border-radius: 4px;
-    border: 1px;
+    border: 1px solid #a9a9a9;
 
     cursor: pointer;
 }
@@ -127,7 +121,7 @@ h1 {
     float: right;
 }
 
-.my-flex-container {
+.navigation-bar {
     margin-left: 25px;
     margin-bottom: 0;
 
@@ -161,9 +155,7 @@ h1 {
     margin-right: 0;
 
     border: 0;
-    border-radius: 8px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-radius: 8px 0 0 8px;
 }
 
 .search-button {
@@ -176,16 +168,14 @@ h1 {
     font-size: 12px;
     line-height: 1.5;
 
-    border-radius: 2px;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+    border-radius: 0 2px 2px 0;
     border: 1px;
 
     cursor: pointer;
 }
 
 .news-feed {
-    margin-top: -40px;
+    margin-top: 160px;
 }
 
 .short-text {
@@ -196,20 +186,31 @@ h1 {
 }
 
 .head-short-news {
+    margin-left: 170px;
     margin-bottom: 0;
-    max-width: 550px;
 }
 
 img {
-    margin: 10px 10px 10px 10px;
+    margin: 20px 10px 10px 10px;
     width: 150px;
     height: 100px;
 }
 
 .short-news {
     background: #fff;
-    border-radius: 8px;
-    margin: 30px 23% 0 30%;
+    border-radius: 4px;
+    border: 1px solid #a9a9a9;
+    margin: 30px 33vw 0 33vw;
+}
+
+.show-news {
+    border: 1px solid #a9a9a9;
+    top: 10vh;
+    margin: 0 30vw 0 30vw;
+    position: fixed;
+    z-index: 999;
+    background: #fff;
+    border-radius: 4px;
 }
 
 hr {
@@ -218,26 +219,26 @@ hr {
 }
 
 footer {
-    margin-left: 10px;
-    margin-top: 0;
+    margin: 3px 0 0 10px;
 }
-
 
 .edit {
     position: relative;
     font-size: 80px;
 }
 
-.readMore {
+.read-more {
     position: relative;
-    left:170px;
+    left: 170px;
 }
 
 .sort {
+    background-color: #000;
     margin: -40px 0 0 10%;
 }
 
 .select-sort {
+    background-color: #000;
     margin-left: 115px;
 }
 
@@ -246,11 +247,11 @@ footer {
 }
 
 .change-news {
-    width: 69vw;
-    position: absolute;
-    top: 10%;
+    border: 1px solid #a9a9a9;
+    top: 10vh;
+    margin: 0 17vw 0 17vw;
+    position: fixed;
     z-index: 999;
-    left: 17vw;
     background: #fff;
 }
 
@@ -270,7 +271,7 @@ footer {
     margin: 0 20px 20px 20px;
     left: 0;
     width: 65vw;
-    height: 70vh;
+    height: 60vh;
 }
 
 .send-news {
@@ -289,7 +290,8 @@ footer {
 
     cursor: pointer;
 }
-.close-window{
+
+.close-window {
     float: right;
     margin-right: 20px;
     background-color: #f00;
@@ -303,15 +305,89 @@ footer {
 
     cursor: pointer;
 }
-.nickname{
+
+.nickname {
     font-size: 30px;
     margin: 0 0 0 -80px;
 }
 
-.flex-interface{
+.flex-interface {
     margin-right: 10px;
     width: 80px;
     float: right;
     display: flex;
     justify-content: space-between;
+}
+
+.show-title {
+    margin: 0 0 0 0;
+    font-size: 30px;
+}
+
+.show-summary {
+    margin: 10px 15px 10px 15px;
+}
+
+.show-content {
+    margin: 0 35px 5px 35px;
+    font-size: 20px;
+}
+
+.half-black {
+    top: 0;
+    left: 0;
+    z-index: 501;
+    background: #000;
+    opacity: 0.8;
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+}
+
+.show-news footer {
+    font-weight: 500;
+    font-size: 20px;
+}
+
+.create-news {
+    border: 1px solid #a9a9a9;
+    top: 10vh;
+    margin: 0 1vw 0 15vw;
+    position: fixed;
+    z-index: 999;
+    background: #fff;
+}
+
+.create-news-title {
+    height: 3vh;
+}
+
+.create-news-summary {
+    height: 3vh;
+}
+
+.create-news-content {
+    flex-basis: 500px;
+}
+
+.create-news-image {
+}
+.flex-creation{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.flex-inputs{
+    width: 55vw;
+    height: 4vw;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+.flex-all-creations{
+    height: 600px;
+    display: flex;
+    justify-content:space-between;
+    flex-direction: column;
+    margin: 40px 20px 20px 20px;
 }
