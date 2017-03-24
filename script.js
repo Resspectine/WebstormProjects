@@ -328,9 +328,9 @@ var newsService = (function () {
                 '<a class="read-more" href="#">read more</a>' +
                 '<div class="flex-interface">' +
                 '<a href="#" id="edit">' +
-                '<i class="fa fa-pencil-square-o fa-2x">e</i></a>' +
+                '<i class="fa fa-pencil-square-o fa-2x"></i></a>' +
                 '<a href="#" id="delete">' +
-                '<i class="fa fa-trash-o fa-2x" aria-hidden="true">d</i></a>' +
+                '<i class="fa fa-trash-o fa-2x" aria-hidden="true"></i></a>' +
                 '</div>' +
                 '<footer>' + article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
                 article.CreatedAt.getFullYear() + ' by ' + article.Author + '</footer>';
@@ -568,6 +568,7 @@ var newsService = (function () {
     }
 
     function show() {
+        document.getElementsByClassName('news-feed')[0].innerHTML="";
         var articles = articlesService.getArticles(0, 3);
         articles.forEach(function (item) {
             addNewsInNewsFeed(item.Id);
@@ -599,12 +600,14 @@ var newsService = (function () {
             document.getElementsByClassName('nickname')[0].textContent = user;
             document.getElementsByClassName('nickname')[0].style.display = '';
             document.getElementsByClassName('log-out')[0].style.display = '';
+            show();
         } else {
             document.getElementsByClassName('log-out')[0].style.display = 'none';
             document.getElementsByClassName('nickname')[0].style.display = 'none';
             document.getElementsByClassName('nickname')[0].textContent = "";
             document.getElementsByClassName('sign-in')[0].style.display = '';
             document.getElementsByClassName('sign-up')[0].style.display = '';
+            show();
         }
     }
 
