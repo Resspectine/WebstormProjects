@@ -1,4 +1,4 @@
-var user = "Иван";
+var user = "";
 var articlesService = (function () {
     var Articles = [{
         Id: "1",
@@ -243,12 +243,12 @@ var articlesService = (function () {
                 sortedArticles = Articles.slice(skip, top);
             }
             else if (fileConfig.Author) {
-                sortedArticles = arr.filter(function (number) {
+                sortedArticles = Articles.filter(function (number) {
                     return fileConfig.CreatedAt.toString() === number.CreatedAt.toString();
                 });
             }
             else {
-                sortedArticles = arr.filter(function (number) {
+                sortedArticles = Articles.filter(function (number) {
                     return fileConfig.Author === number.Author;
                 });
             }
@@ -293,6 +293,7 @@ var articlesService = (function () {
             getArticle(id).Title = article.Title;
             getArticle(id).Summary = article.Summary;
             getArticle(id).Content = article.Content;
+            return true;
         }
         else {
             console.log("false");
@@ -315,7 +316,7 @@ var articlesService = (function () {
 }());
 var newsService = (function () {
 
-    function addNews(id) {
+    function addNewsInNewsFeed(id) {
         var article = articlesService.getArticle(id);
         var template = document.createElement('div');
         template.className = 'short-news';
@@ -327,9 +328,9 @@ var newsService = (function () {
                 '<a class="read-more" href="#">read more</a>' +
                 '<div class="flex-interface">' +
                 '<a href="#" id="edit">' +
-                '<i class="fa fa-pencil-square-o fa-2x"></i></a>' +
+                '<i class="fa fa-pencil-square-o fa-2x">e</i></a>' +
                 '<a href="#" id="delete">' +
-                '<i class="fa fa-trash-o fa-2x" aria-hidden="true"></i></a>' +
+                '<i class="fa fa-trash-o fa-2x" aria-hidden="true">d</i></a>' +
                 '</div>' +
                 '<footer>' + article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
                 article.CreatedAt.getFullYear() + ' by ' + article.Author + '</footer>';
@@ -338,8 +339,8 @@ var newsService = (function () {
                 '<h2 class="head-short-news">' + article.Title + '</h2>' +
                 '<p class="short-text">' + article.Summary + '</p>' +
                 '<a class="read-more" href="#">read more</a>' +
-                '<footer>' + date.getDate() + '.' + date.getMonth() + '.' +
-                date.getFullYear() + ' by ' + article.Author + '</footer>';
+                '<footer>' + article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
+                article.CreatedAt.getFullYear() + ' by ' + article.Author + '</footer>';
         }
         template.addEventListener('click', handleClickOnNews);
         document.getElementsByClassName('news-feed')[0].appendChild(template);
@@ -352,24 +353,24 @@ var newsService = (function () {
             openNews(event.currentTarget.id);
         }
         if (parent.id === 'edit') {
-            changeNews(event.currentTarget.id);
+            editNews(event.currentTarget.id);
         }
         if (parent.id === 'delete') {
-            deleteNews(event.currentTarget.id);
+            deleteNewsFromNewsFeed(event.currentTarget.id);
         }
     }
 
     function handleClickToClose(event) {
         var button = event.target;
         if (button.className === 'close-window') {
-            closeWindow(event.currentTarget.id);
+            closeWindow(event.currentTarget);
         }
     }
 
-    function handleClickOnChanging(event) {
+    function handleClickOnEditing(event) {
         var button = event.target;
         if (button.className === 'send-news') {
-            completeChanging(event.target.id);
+            completeEditing(event.target.id, event.currentTarget);
         }
     }
 
@@ -384,29 +385,68 @@ var newsService = (function () {
         var key = event.target.id;
         switch (key) {
             case 'add-news':
-                createWindowNews();
+                if (user) {
+                    createWindowNews();
+                }
                 break;
         }
     }
 
-    function createNews(element) {
-        var title = element.getElementsByClassName('create-news-title')[0].value;
-        var summary = element.getElementsByClassName('create-news-summary')[0].value;
-        var content = element.getElementsByClassName('create-news-content')[0].value;
-        var date = new Date();
-        var article = {
-            Id: date.toString(),
-            Title: title,
-            Summary: summary,
-            CreatedAt: date,
-            Author: user,
-            Content: content
-        };
-        if (articlesService.addArticle(article)) {
-            addNews(article.Id);
+    function handleClickOnLogining(event) {
+        if (event.target.className === 'login-button') {
+            getUser(event.currentTarget);
+        }
+    }
+
+    function handleClickOnControlButtons(event) {
+        switch (event.target.className) {
+            case 'sign-in':
+                loginWindow();
+                break;
+            case 'sign-up':
+                console.log('sign-up');
+                break;
+            case 'log-out':
+                user = "";
+                checkingUser();
+                break;
+        }
+    }
+
+    function loginWindow() {
+        var blackBackground = document.createElement('div');
+        blackBackground.className = 'half-black';
+        var template = document.createElement('div');
+        template.className = 'login-window';
+        template.id = 'login-window';
+        template.innerHTML =
+            '<button class="close-window">&#10006;</button>' +
+            '<div class="flex-login-inputs">' +
+            '<input type="text" placeholder="Login" class="login" title="Title">' +
+            '<input type="text" placeholder="Password" class="password" title="Summary">' +
+            '</div>' +
+            '<button class="login-button">' +
+            'Log in' +
+            '</button>';
+        template.addEventListener('click', handleClickToClose);
+        template.addEventListener('click', handleClickOnLogining);
+        document.getElementsByClassName('news-feed')[0].appendChild(template);
+        document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+        setTimeout(function () {
+            template.style.opacity = '1';
+        }, 0);
+    }
+
+    function getUser(element) {
+        var nickName = element.getElementsByClassName('login')[0].value;
+        var password = element.getElementsByClassName('password')[0].value;
+        if (nickName) {
+            user = nickName;
+            checkingUser();
+            closeWindow(element);
         }
         else {
-            alert("Invalid news");
+            alert('Invalid user');
         }
     }
 
@@ -435,18 +475,31 @@ var newsService = (function () {
         template.addEventListener('click', handleClickOnCreating);
         document.getElementsByClassName('news-feed')[0].appendChild(template);
         document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+        setTimeout(function () {
+            template.style.opacity = '1';
+        }, 0);
     }
 
-    function show() {
-        var articles = articlesService.getArticles(0, 3);
-        articles.forEach(function (item) {
-            addNews(item.Id);
-        });
-    }
-
-    function deleteNews(id) {
-        var temp = document.getElementById(id);
-        document.getElementsByClassName('news-feed')[0].removeChild(temp);
+    function createNews(element) {
+        var title = element.getElementsByClassName('create-news-title')[0].value;
+        var summary = element.getElementsByClassName('create-news-summary')[0].value;
+        var content = element.getElementsByClassName('create-news-content')[0].value;
+        var date = new Date();
+        var article = {
+            Id: date.toString(),
+            Title: title,
+            Summary: summary,
+            CreatedAt: date,
+            Author: user,
+            Content: content
+        };
+        if (articlesService.addArticle(article)) {
+            addNewsInNewsFeed(article.Id);
+            closeWindow(element);
+        }
+        else {
+            alert("Invalid news");
+        }
     }
 
     function openNews(id) {
@@ -467,68 +520,151 @@ var newsService = (function () {
         template.addEventListener('click', handleClickToClose);
         document.getElementsByClassName('news-feed')[0].appendChild(template);
         document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+        setTimeout(function () {
+            template.style.opacity = '1';
+        }, 0);
     }
 
-    function changeNews(id) {
+    function editNews(id) {
+        var article = articlesService.getArticle(id);
         var blackBackground = document.createElement('div');
         blackBackground.className = 'half-black';
         var template = document.createElement('div');
-        template.className = 'change-news';
-        template.id = 'changing';
+        template.className = 'edit-news';
+        template.id = 'editing';
         template.innerHTML =
             '<button class="close-window">&#10006;</button>' +
-            '<input type="text" placeholder="Title" class="text-title" title="Title">' +
-            '<input type="text" placeholder="Summary" class="text-summary" title="Summary">' +
-            '<textarea placeholder="Content" class="text-content" title="Content"></textarea>' +
+            '<input type="text" placeholder="Title" class="text-title" title="Title" value="' + article.Title + '">' +
+            '<input type="text" placeholder="Summary" class="text-summary" title="Summary" value="' + article.Summary + '">' +
+            '<textarea placeholder="Content" class="text-content" title="Content">' + article.Content + '</textarea>' +
             '<button class="send-news" id="' + id + '">' +
             '<i class="fa fa-paper-plane"></i>Send</button>';
         template.addEventListener('click', handleClickToClose);
-        template.addEventListener('click', handleClickOnChanging);
+        template.addEventListener('click', handleClickOnEditing);
         document.getElementsByClassName('news-feed')[0].appendChild(template);
         document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+        setTimeout(function () {
+            template.style.opacity = '1';
+        }, 0);
     }
 
-    function closeWindow(id) {
-        var temp = document.getElementById(id);
-        document.getElementsByClassName('news-feed')[0].removeChild(temp);
-        temp = document.getElementsByClassName('half-black')[0];
-        document.getElementsByClassName('news-feed')[0].removeChild(temp);
-    }
-
-    function completeChanging(id) {
-        var temp = document.getElementById('changing');
-        var title = temp.getElementsByClassName('text-title')[0].value;
-        var summary = temp.getElementsByClassName('text-summary')[0].value;
-        var content = temp.getElementsByClassName('text-content')[0].value;
+    function completeEditing(id, element) {
+        var title = element.getElementsByClassName('text-title')[0].value;
+        var summary = element.getElementsByClassName('text-summary')[0].value;
+        var content = element.getElementsByClassName('text-content')[0].value;
         var article = {
             Title: title,
             Summary: summary,
             Content: content
         };
-        articlesService.editArticle(id, article);
-        var news = addNews(id);
-        var oldChild = document.getElementById(id);
-        document.getElementsByClassName('news-feed')[0].replaceChild(news, oldChild);
+        if (articlesService.editArticle(id, article)) {
+            var news = addNewsInNewsFeed(id);
+            var oldChild = document.getElementById(id);
+            document.getElementsByClassName('news-feed')[0].replaceChild(news, oldChild);
+            closeWindow(element);
+        } else {
+            alert("Invalid news");
+        }
+    }
+
+    function show() {
+        var articles = articlesService.getArticles(0, 3);
+        articles.forEach(function (item) {
+            addNewsInNewsFeed(item.Id);
+        });
+    }
+
+    function deleteNewsFromNewsFeed(id) {
+        var temp = document.getElementById(id);
+        document.getElementsByClassName('news-feed')[0].removeChild(temp);
+    }
+
+    function closeWindow(element) {
+        element.style.opacity = '0';
+        setTimeout(function () {
+            document.getElementsByClassName('news-feed')[0].removeChild(element);
+            var temp = document.getElementsByClassName('half-black')[0];
+            document.getElementsByClassName('news-feed')[0].removeChild(temp);
+        }, 500);
     }
 
     document.getElementsByClassName('navigation-bar')[0].addEventListener('click', handleClickOnNavigationBar);
 
+    document.getElementsByClassName('all-buttons')[0].addEventListener('click', handleClickOnControlButtons);
+
+    function checkingUser() {
+        if (user) {
+            document.getElementsByClassName('sign-in')[0].style.display = 'none';
+            document.getElementsByClassName('sign-up')[0].style.display = 'none';
+            document.getElementsByClassName('nickname')[0].textContent = user;
+            document.getElementsByClassName('nickname')[0].style.display = '';
+            document.getElementsByClassName('log-out')[0].style.display = '';
+        } else {
+            document.getElementsByClassName('log-out')[0].style.display = 'none';
+            document.getElementsByClassName('nickname')[0].style.display = 'none';
+            document.getElementsByClassName('nickname')[0].textContent = "";
+            document.getElementsByClassName('sign-in')[0].style.display = '';
+            document.getElementsByClassName('sign-up')[0].style.display = '';
+        }
+    }
+
+    checkingUser();
+
     return {
-        addNews: addNews,
-        deleteNews: deleteNews,
+        addNews: addNewsInNewsFeed,
+        deleteNews: deleteNewsFromNewsFeed,
         show: show,
-        changeNews: changeNews,
+        changeNews: editNews,
         closeWindow: closeWindow,
-        completeChanging: completeChanging
+        completeChanging: completeEditing
     }
 }());
 window.onload = function () {
     newsService.show();
-    if (user) {
-        document.getElementsByClassName('in-button')[0].setAttribute('hidden', 'hidden');
-        document.getElementsByClassName('out-button')[0].setAttribute('hidden', 'hidden');
-        document.getElementsByClassName('nickname')[0].textContent = user;
-    } else {
-        document.getElementsByClassName('log-button')[0].setAttribute('hidden', 'hidden');
+};
+var updownElem = document.getElementById('updown');
+
+var pageYLabel = 0;
+
+updownElem.onclick = function () {
+    var pageY = window.pageYOffset || document.documentElement.scrollTop;
+
+    switch (this.className) {
+        case 'up':
+            pageYLabel = pageY;
+            window.scrollTo(0, 0);
+            this.className = 'down';
+            break;
+
+        case 'down':
+            window.scrollTo(0, pageYLabel);
+            this.className = 'up';
+    }
+
+};
+
+window.onscroll = function () {
+    var pageY = window.pageYOffset || document.documentElement.scrollTop;
+    var innerHeight = document.documentElement.clientHeight;
+
+    switch (updownElem.className) {
+        case '':
+            if (pageY > innerHeight) {
+                updownElem.className = 'up';
+            }
+            break;
+
+        case 'up':
+            if (pageY < innerHeight) {
+                updownElem.className = '';
+            }
+            break;
+
+        case 'down':
+            if (pageY > innerHeight) {
+                updownElem.className = 'up';
+            }
+            break;
+
     }
 };
