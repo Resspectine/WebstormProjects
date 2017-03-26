@@ -1,6 +1,6 @@
-var user = "";
+var user = "resspectine";
 var articlesService = (function () {
-    var Articles = [{
+    var articles = [{
         Id: "1",
         Title: "Что изменится с 1 марта: подорожают сигареты и звонки со стационарных телефонов",
         Summary: "С 1 марта в Беларуси вырастут цены на некоторые марки сигарет, а также подорожают звонки" +
@@ -233,21 +233,97 @@ var articlesService = (function () {
         "издания в дипломатических кругах, Сеул впервые обратился к Москве с просьбой в срочном порядке " +
         "выяснить местонахождение и задержать подозреваемых для проверки их личностей."
     }];
+    var Articles = JSON.parse(localStorage.getItem('data'));
+    if (Articles) {
+        Articles.forEach(function (item) {
+            item.CreatedAt = new Date(item.CreatedAt);
+        });
+    }
+    window.addEventListener('beforeunload', function () {
+        if (!Articles) {
+            localStorage.setItem('data', JSON.stringify(articles));
+        } else {
+            localStorage.setItem('data', JSON.stringify(Articles));
+        }
+    });
+
+    function setLength() {
+        if (Articles) {
+            length = Articles.length;
+        }
+        else {
+            length = articles.length;
+        }
+    }
+
+    var validatedArticle =
+        {
+            Id: function (id) {
+                if (id) {
+                    return typeof id === 'string';
+                }
+                return false;
+            },
+            Title: function (title) {
+                if (title) {
+                    return title.length < 100;
+                }
+                return false;
+            },
+            Summary: function (summary) {
+                if (summary) {
+                    return summary.length < 200;
+                }
+                return false;
+            },
+            CreatedAt: function (createdAt) {
+                return createdAt;
+            },
+            Author: function (author) {
+                return author;
+            },
+            Content: function (content) {
+                return content;
+            }
+        };
 
     function getArticles(skip, top, fileConfig) {
         skip = skip || 0;
         top = top || 10;
         var sortedArticles = [];
         if (fileConfig) {
-            if (!fileConfig.Author && !fileConfig.CreatedAt) {
+            if (!fileConfig.Author && !fileConfig.CreatedAtStart && !fileConfig.CreatedAtFinish) {
                 sortedArticles = Articles.slice(skip, top);
             }
-            else if (fileConfig.Author) {
+            else if (fileConfig.CreatedAtStart && !fileConfig.CreatedAtFinish && !fileConfig.Author) {
                 sortedArticles = Articles.filter(function (number) {
-                    return fileConfig.CreatedAt.toString() === number.CreatedAt.toString();
+                    return new Date(fileConfig.CreatedAtStart) <= number.CreatedAt;
                 });
             }
-            else {
+            else if (!fileConfig.CreatedAtStart && fileConfig.CreatedAtFinish && !fileConfig.Author) {
+                sortedArticles = Articles.filter(function (number) {
+                    return new Date(fileConfig.CreatedAtFinish) >= number.CreatedAt;
+                });
+            } else if (fileConfig.CreatedAtStart && fileConfig.CreatedAtFinish && !fileConfig.Author) {
+                sortedArticles = Articles.filter(function (number) {
+                    return new Date(fileConfig.CreatedAtFinish) >= number.CreatedAt &&
+                        new Date(fileConfig.CreatedAtStart) <= number.CreatedAt;
+                });
+            } else if (fileConfig.CreatedAtStart && fileConfig.CreatedAtFinish && fileConfig.Author) {
+                sortedArticles = Articles.filter(function (number) {
+                    return new Date(fileConfig.CreatedAtFinish) >= number.CreatedAt &&
+                        new Date(fileConfig.CreatedAtStart) <= number.CreatedAt && fileConfig.Author === number.Author;
+                });
+            } else if (!fileConfig.CreatedAtStart && fileConfig.CreatedAtFinish && fileConfig.Author) {
+                sortedArticles = Articles.filter(function (number) {
+                    return new Date(fileConfig.CreatedAtFinish) >= number.CreatedAt &&
+                        fileConfig.Author === number.Author;
+                });
+            } else if (fileConfig.CreatedAtStart && !fileConfig.CreatedAtFinish && fileConfig.Author) {
+                sortedArticles = Articles.filter(function (number) {
+                    return new Date(fileConfig.CreatedAtStart) <= number.CreatedAt && number.Author;
+                });
+            } else {
                 sortedArticles = Articles.filter(function (number) {
                     return fileConfig.Author === number.Author;
                 });
@@ -273,14 +349,18 @@ var articlesService = (function () {
     }
 
     function validateArticle(article) {
-        return Object.values(article).every(function (item) {
-            return item !== "";
-        });
+        if (article) {
+            return Object.keys(validatedArticle).every(function (item) {
+                    return validatedArticle[item](article[item]);
+                }
+            );
+        }
     }
 
     function addArticle(article) {
         if (validateArticle(article)) {
             Articles.push(article);
+            setLength();
             return true;
         }
         else {
@@ -303,7 +383,19 @@ var articlesService = (function () {
 
     function removeArticle(id) {
         Articles.splice(Articles.indexOf(getArticle(id)), Articles.indexOf(getArticle(id)));
+        setLength();
     }
+
+    function uniqueAuthors() {
+        var authors = {};
+        articles.forEach(function (item) {
+            var str = item.Author;
+            authors[str] = true;
+        });
+        return authors;
+    }
+
+    setLength();
 
     return {
         getArticles: getArticles,
@@ -311,52 +403,44 @@ var articlesService = (function () {
         validateArticle: validateArticle,
         addArticle: addArticle,
         editArticle: editArticle,
-        removeArticle: removeArticle
+        removeArticle: removeArticle,
+        length: length,
+        uniqueAuthors: uniqueAuthors()
     }
 }());
-var newsService = (function () {
+var newsService = ((function () {
+    var amountOfNews = 0;
 
-    function addNewsInNewsFeed(id) {
+    function addNewsInNewsFeed(id, direction) {
         var article = articlesService.getArticle(id);
-        var template = document.createElement('div');
-        template.className = 'short-news';
-        template.id = id;
+        var news;
         if (user) {
-            template.innerHTML = '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">' +
-                '<h2 class="head-short-news">' + article.Title + '</h2>' +
-                '<p class="short-text">' + article.Summary + '</p>' +
-                '<a class="read-more" href="#">read more</a>' +
-                '<div class="flex-interface">' +
-                '<a href="#" id="edit">' +
-                '<i class="fa fa-pencil-square-o fa-2x"></i></a>' +
-                '<a href="#" id="delete">' +
-                '<i class="fa fa-trash-o fa-2x" aria-hidden="true"></i></a>' +
-                '</div>' +
-                '<footer>' + article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
-                article.CreatedAt.getFullYear() + ' by ' + article.Author + '</footer>';
+            news = document.querySelector('#logined-user-news').content.querySelector('.short-news').cloneNode(true);
         } else {
-            template.innerHTML = '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" hspace="10px" align="left">' +
-                '<h2 class="head-short-news">' + article.Title + '</h2>' +
-                '<p class="short-text">' + article.Summary + '</p>' +
-                '<a class="read-more" href="#">read more</a>' +
-                '<footer>' + article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
-                article.CreatedAt.getFullYear() + ' by ' + article.Author + '</footer>';
+            news = document.querySelector('#unlogined-user-news').content.querySelector('.short-news').cloneNode(true);
         }
-        template.addEventListener('click', handleClickOnNews);
-        document.getElementsByClassName('news-feed')[0].appendChild(template);
-        return template;
+        news.id = id;
+        news.getElementsByTagName('h2')[0].innerHTML = article.Title;
+        news.getElementsByTagName('p')[0].innerHTML = article.Summary;
+        news.getElementsByTagName('footer')[0].innerHTML = article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
+            article.CreatedAt.getFullYear() + ' by ' + article.Author;
+        news.addEventListener('click', handleClickOnNews);
+        direction.appendChild(news);
+        return news;
     }
 
     function handleClickOnNews(event) {
         var parent = event.target.parentNode;
-        if (event.target.className === 'read-more') {
-            openNews(event.currentTarget.id);
-        }
         if (parent.id === 'edit') {
             editNews(event.currentTarget.id);
-        }
-        if (parent.id === 'delete') {
-            deleteNewsFromNewsFeed(event.currentTarget.id);
+        } else {
+            if (parent.id === 'delete') {
+                deleteNewsFromNewsFeed(event.currentTarget.id);
+            } else {
+                if (event.currentTarget.className === 'short-news') {
+                    openNews(event.currentTarget.id);
+                }
+            }
         }
     }
 
@@ -410,30 +494,62 @@ var newsService = (function () {
                 user = "";
                 checkingUser();
                 break;
+            case 'load-more':
+                loadMoreNews();
+                break;
         }
+    }
+
+    function handleClickOnSort(event) {
+        var button = event.currentTarget.childNodes[0];
+        var temp = document.getElementsByClassName('search-tools')[0];
+        if (button.className === 'fa fa-arrow-down') {
+            temp.style.top = document.getElementsByClassName('header')[0].offsetHeight + 'px';
+            button.className = 'fa fa-arrow-up';
+        }
+        else {
+            temp.style.top = '0';
+            button.className = 'fa fa-arrow-down';
+        }
+    }
+
+    function handleClickOnSortButton(event) {
+        var body = event.currentTarget.parentNode.parentNode;
+        var name = body.getElementsByClassName('authors')[0].value;
+        var startDate = body.getElementsByClassName('start-date')[0].value;
+        var finishDate = body.getElementsByClassName('finish-date')[0].value;
+        var articles = articlesService.getArticles(0, articlesService.length, {
+            Author: name,
+            CreatedAtStart: startDate,
+            CreatedAtFinish: finishDate
+        });
+        var feed = document.getElementsByClassName('news-feed')[0];
+        feed.innerHTML = '';
+        articles.forEach(function (item) {
+            addNewsInNewsFeed(item.Id, feed);
+        });
+        document.getElementsByClassName('sort-delete')[0].style.display = 'flex';
+        document.getElementsByClassName('load-more')[0].style.display = 'none';
+        document.getElementsByClassName('search-tools')[0].style.top = '0';
+        document.getElementsByClassName('fa fa-arrow-up')[0].className = 'fa fa-arrow-down';
+    }
+
+    function handleClickOnDeleteSort(event) {
+        show();
+        event.target.style.display = 'none';
     }
 
     function loginWindow() {
         var blackBackground = document.createElement('div');
         blackBackground.className = 'half-black';
-        var template = document.createElement('div');
-        template.className = 'login-window';
-        template.id = 'login-window';
-        template.innerHTML =
-            '<button class="close-window">&#10006;</button>' +
-            '<div class="flex-login-inputs">' +
-            '<input type="text" placeholder="Login" class="login" title="Title">' +
-            '<input type="text" placeholder="Password" class="password" title="Summary">' +
-            '</div>' +
-            '<button class="login-button">' +
-            'Log in' +
-            '</button>';
-        template.addEventListener('click', handleClickToClose);
-        template.addEventListener('click', handleClickOnLogining);
-        document.getElementsByClassName('news-feed')[0].appendChild(template);
-        document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+        var news = document.querySelector('#login-window').content.querySelector('.login-window').cloneNode(true);
+        news.id = 'login-window';
+        news.addEventListener('click', handleClickToClose);
+        news.addEventListener('click', handleClickOnLogining);
+        document.getElementsByClassName('overlay')[0].appendChild(news);
+        document.getElementsByClassName('overlay')[0].appendChild(blackBackground);
         setTimeout(function () {
-            template.style.opacity = '1';
+            news.style.opacity = '1';
         }, 0);
     }
 
@@ -443,7 +559,6 @@ var newsService = (function () {
         if (nickName) {
             user = nickName;
             checkingUser();
-            closeWindow(element);
         }
         else {
             alert('Invalid user');
@@ -453,30 +568,14 @@ var newsService = (function () {
     function createWindowNews() {
         var blackBackground = document.createElement('div');
         blackBackground.className = 'half-black';
-        var template = document.createElement('div');
-        template.className = 'create-news';
-        template.id = 'creating';
-        template.innerHTML =
-            '<button class="close-window">&#10006;</button>' +
-            '<div class="flex-all-creations">' +
-            '<div class="flex-creation">' +
-            '<input type="file" class="create-news-image" align="left">' +
-            '<div class="flex-inputs">' +
-            '<input type="text" placeholder="Title" class="create-news-title" title="Title">' +
-            '<input type="text" placeholder="Summary" class="create-news-summary" title="Summary">' +
-            '</div>' +
-            '</div>' +
-            '<textarea placeholder="Content" class="create-news-content" title="Content"></textarea>' +
-            '</div>' +
-            '<button class="send-news" id="">' +
-            '<i class="fa fa-plus"></i>Create' +
-            '</button>';
-        template.addEventListener('click', handleClickToClose);
-        template.addEventListener('click', handleClickOnCreating);
-        document.getElementsByClassName('news-feed')[0].appendChild(template);
-        document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+        var news = document.querySelector('#creating-news').content.querySelector('.create-news').cloneNode(true);
+        news.id = 'creating';
+        news.addEventListener('click', handleClickToClose);
+        news.addEventListener('click', handleClickOnCreating);
+        document.getElementsByClassName('overlay')[0].appendChild(news);
+        document.getElementsByClassName('overlay')[0].appendChild(blackBackground);
         setTimeout(function () {
-            template.style.opacity = '1';
+            news.style.opacity = '1';
         }, 0);
     }
 
@@ -493,8 +592,10 @@ var newsService = (function () {
             Author: user,
             Content: content
         };
+        var temp = document.getElementsByClassName('news-feed')[0];
+        console.log(temp);
         if (articlesService.addArticle(article)) {
-            addNewsInNewsFeed(article.Id);
+            addNewsInNewsFeed(article.Id, temp);
             closeWindow(element);
         }
         else {
@@ -505,46 +606,38 @@ var newsService = (function () {
     function openNews(id) {
         var blackBackground = document.createElement('div');
         blackBackground.className = 'half-black';
+        var news = document.querySelector('#show-news').content.querySelector('.show-news').cloneNode(true);
         var article = articlesService.getArticle(id);
-        var template = document.createElement('div');
-        template.className = 'show-news';
-        template.id = 'show-news';
-        template.innerHTML =
-            '<img src="https://img.tyt.by/620x620s/n/0d/1/bobruysk_protest_2602_11.jpg" align="left">' +
-            '<button class="close-window">&#10006;</button>' +
-            '<h1 class="show-title" title="Title">' + article.Title + '</h1>' +
-            '<h2 class="show-summary" title="Summary">' + article.Summary + '</h2>' +
-            '<p class="show-content" title="Content">' + article.Content + '</p>' +
-            '<footer>' + article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
-            article.CreatedAt.getFullYear() + ' by ' + article.Author + '</footer>';
-        template.addEventListener('click', handleClickToClose);
-        document.getElementsByClassName('news-feed')[0].appendChild(template);
-        document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+        news.id = 'show-news';
+        news.getElementsByTagName('h1')[0].innerHTML = article.Title;
+        news.getElementsByTagName('h2')[0].innerHTML = article.Summary;
+        news.getElementsByTagName('p')[0].innerHTML = article.Content;
+        news.getElementsByTagName('footer')[0].innerHTML = article.CreatedAt.getDate() + '.' + article.CreatedAt.getMonth() + '.' +
+            article.CreatedAt.getFullYear() + ' by ' + article.Author;
+        news.addEventListener('click', handleClickToClose);
+        document.getElementsByClassName('overlay')[0].appendChild(news);
+        document.getElementsByClassName('overlay')[0].appendChild(blackBackground);
         setTimeout(function () {
-            template.style.opacity = '1';
+            news.style.opacity = '1';
         }, 0);
     }
 
     function editNews(id) {
         var article = articlesService.getArticle(id);
+        var news = document.querySelector('#edit-news').content.querySelector('.edit-news').cloneNode(true);
         var blackBackground = document.createElement('div');
         blackBackground.className = 'half-black';
-        var template = document.createElement('div');
-        template.className = 'edit-news';
-        template.id = 'editing';
-        template.innerHTML =
-            '<button class="close-window">&#10006;</button>' +
-            '<input type="text" placeholder="Title" class="text-title" title="Title" value="' + article.Title + '">' +
-            '<input type="text" placeholder="Summary" class="text-summary" title="Summary" value="' + article.Summary + '">' +
-            '<textarea placeholder="Content" class="text-content" title="Content">' + article.Content + '</textarea>' +
-            '<button class="send-news" id="' + id + '">' +
-            '<i class="fa fa-paper-plane"></i>Send</button>';
-        template.addEventListener('click', handleClickToClose);
-        template.addEventListener('click', handleClickOnEditing);
-        document.getElementsByClassName('news-feed')[0].appendChild(template);
-        document.getElementsByClassName('news-feed')[0].appendChild(blackBackground);
+        news.id = 'editing';
+        news.getElementsByClassName('text-title')[0].value = article.Title;
+        news.getElementsByClassName('text-summary')[0].value = article.Summary;
+        news.getElementsByClassName('text-content')[0].innerHTML = article.Content;
+        news.getElementsByClassName('send-news')[0].id = id;
+        news.addEventListener('click', handleClickToClose);
+        news.addEventListener('click', handleClickOnEditing);
+        document.getElementsByClassName('overlay')[0].appendChild(news);
+        document.getElementsByClassName('overlay')[0].appendChild(blackBackground);
         setTimeout(function () {
-            template.style.opacity = '1';
+            news.style.opacity = '1';
         }, 0);
     }
 
@@ -568,30 +661,67 @@ var newsService = (function () {
     }
 
     function show() {
-        document.getElementsByClassName('news-feed')[0].innerHTML="";
-        var articles = articlesService.getArticles(0, 3);
+        document.getElementsByClassName('news-feed')[0].innerHTML = '';
+        var temp = document.getElementsByClassName('news-feed')[0];
+        var articles = articlesService.getArticles(0, 4);
         articles.forEach(function (item) {
-            addNewsInNewsFeed(item.Id);
+            addNewsInNewsFeed(item.Id, temp);
         });
+        amountOfNews = 4;
+        document.getElementsByClassName('load-more')[0].style.display = '';
     }
 
     function deleteNewsFromNewsFeed(id) {
         var temp = document.getElementById(id);
-        document.getElementsByClassName('news-feed')[0].removeChild(temp);
+        articlesService.removeArticle(id);
+        temp.parentNode.removeChild(temp);
+    }
+
+    function loadMoreNews() {
+        if (articlesService.length - amountOfNews > 0) {
+            var temp = document.getElementsByClassName('news-feed')[0];
+            var articles = articlesService.getArticles(amountOfNews, amountOfNews + 4);
+            articles.forEach(function (item) {
+                addNewsInNewsFeed(item.Id, temp);
+            });
+            amountOfNews += 4;
+            if (articlesService.length - amountOfNews < 0) {
+                document.getElementsByClassName('load-more')[0].style.display = 'none';
+            }
+        }
     }
 
     function closeWindow(element) {
         element.style.opacity = '0';
         setTimeout(function () {
-            document.getElementsByClassName('news-feed')[0].removeChild(element);
+            document.getElementsByClassName('overlay')[0].removeChild(element);
             var temp = document.getElementsByClassName('half-black')[0];
-            document.getElementsByClassName('news-feed')[0].removeChild(temp);
+            document.getElementsByClassName('overlay')[0].removeChild(temp);
         }, 500);
     }
 
+    function fillingSelect() {
+        var authors = articlesService.uniqueAuthors;
+        var select = document.getElementsByClassName('authors')[0];
+        Object.keys(authors).forEach(function (item) {
+            select.innerHTML += '<option>' + item + '</option>';
+        });
+        select.innerHTML += '<option> </option>'
+    }
+
+    fillingSelect();
+
+    document.getElementsByClassName('sort-delete')[0].addEventListener('click', handleClickOnDeleteSort);
+
     document.getElementsByClassName('navigation-bar')[0].addEventListener('click', handleClickOnNavigationBar);
 
+    document.getElementsByClassName('sort-triggering')[0].addEventListener('click', handleClickOnSort);
+
     document.getElementsByClassName('all-buttons')[0].addEventListener('click', handleClickOnControlButtons);
+
+    document.getElementsByClassName('load-more')[0].addEventListener('click', handleClickOnControlButtons);
+
+    document.getElementsByClassName('sort-button')[0].addEventListener('click', handleClickOnSortButton);
 
     function checkingUser() {
         if (user) {
@@ -604,7 +734,7 @@ var newsService = (function () {
         } else {
             document.getElementsByClassName('log-out')[0].style.display = 'none';
             document.getElementsByClassName('nickname')[0].style.display = 'none';
-            document.getElementsByClassName('nickname')[0].textContent = "";
+            document.getElementsByClassName('nickname')[0].textContent = '';
             document.getElementsByClassName('sign-in')[0].style.display = '';
             document.getElementsByClassName('sign-up')[0].style.display = '';
             show();
@@ -621,53 +751,7 @@ var newsService = (function () {
         closeWindow: closeWindow,
         completeChanging: completeEditing
     }
-}());
+})());
 window.onload = function () {
     newsService.show();
-};
-var updownElem = document.getElementById('updown');
-
-var pageYLabel = 0;
-
-updownElem.onclick = function () {
-    var pageY = window.pageYOffset || document.documentElement.scrollTop;
-
-    switch (this.className) {
-        case 'up':
-            pageYLabel = pageY;
-            window.scrollTo(0, 0);
-            this.className = 'down';
-            break;
-
-        case 'down':
-            window.scrollTo(0, pageYLabel);
-            this.className = 'up';
-    }
-
-};
-
-window.onscroll = function () {
-    var pageY = window.pageYOffset || document.documentElement.scrollTop;
-    var innerHeight = document.documentElement.clientHeight;
-
-    switch (updownElem.className) {
-        case '':
-            if (pageY > innerHeight) {
-                updownElem.className = 'up';
-            }
-            break;
-
-        case 'up':
-            if (pageY < innerHeight) {
-                updownElem.className = '';
-            }
-            break;
-
-        case 'down':
-            if (pageY > innerHeight) {
-                updownElem.className = 'up';
-            }
-            break;
-
-    }
 };
