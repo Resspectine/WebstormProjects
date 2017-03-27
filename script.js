@@ -234,16 +234,26 @@ var articlesService = (function () {
         "выяснить местонахождение и задержать подозреваемых для проверки их личностей."
     }];
     var Articles = JSON.parse(localStorage.getItem('data'));
+    var deletedArticles = JSON.parse(localStorage.getItem('delete'));
     if (Articles) {
         Articles.forEach(function (item) {
             item.CreatedAt = new Date(item.CreatedAt);
         });
     }
+    if (deletedArticles) {
+        deletedArticles.forEach(function (item) {
+            item.CreatedAt = new Date(item.CreatedAt);
+        });
+    } else{
+        deletedArticles = [];
+    }
     window.addEventListener('beforeunload', function () {
         if (!Articles) {
             localStorage.setItem('data', JSON.stringify(articles));
+            localStorage.setItem('delete', JSON.stringify(deletedArticles));
         } else {
             localStorage.setItem('data', JSON.stringify(Articles));
+            localStorage.setItem('delete', JSON.stringify(deletedArticles));
         }
     });
 
@@ -392,6 +402,7 @@ var articlesService = (function () {
     }
 
     function removeArticle(id) {
+        deletedArticles.push(getArticle(id));
         Articles.splice(Articles.indexOf(getArticle(id)), Articles.indexOf(getArticle(id)));
         setLength();
     }
@@ -415,6 +426,7 @@ var articlesService = (function () {
         editArticle: editArticle,
         removeArticle: removeArticle,
         length: length,
+        deletedArticles: deletedArticles,
         uniqueAuthors: uniqueAuthors
     }
 }());
@@ -695,6 +707,7 @@ var newsService = ((function () {
         var temp = document.getElementById(id);
         articlesService.removeArticle(id);
         temp.parentNode.removeChild(temp);
+        console.log(articlesService.deletedArticles);
     }
 
     function loadMoreNews() {
