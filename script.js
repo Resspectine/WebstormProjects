@@ -239,12 +239,14 @@ var articlesService = (function () {
         Articles.forEach(function (item) {
             item.CreatedAt = new Date(item.CreatedAt);
         });
+    } else {
+        Articles = articles;
     }
     if (deletedArticles) {
         deletedArticles.forEach(function (item) {
             item.CreatedAt = new Date(item.CreatedAt);
         });
-    } else{
+    } else {
         deletedArticles = [];
     }
     window.addEventListener('beforeunload', function () {
@@ -300,47 +302,23 @@ var articlesService = (function () {
     function getArticles(skip, top, fileConfig) {
         skip = skip || 0;
         top = top || 10;
-        var sortedArticles = [];
+        var sortedArticles = Articles.slice(skip, top);
         if (fileConfig) {
-            if (!fileConfig.Author && !fileConfig.CreatedAtStart && !fileConfig.CreatedAtFinish) {
-                sortedArticles = Articles.slice(skip, top);
-            }
-            else if (fileConfig.CreatedAtStart && !fileConfig.CreatedAtFinish && !fileConfig.Author) {
-                sortedArticles = Articles.filter(function (number) {
-                    return new Date(fileConfig.CreatedAtStart) <= number.CreatedAt;
-                });
-            }
-            else if (!fileConfig.CreatedAtStart && fileConfig.CreatedAtFinish && !fileConfig.Author) {
-                sortedArticles = Articles.filter(function (number) {
-                    return new Date(fileConfig.CreatedAtFinish) >= number.CreatedAt;
-                });
-            } else if (fileConfig.CreatedAtStart && fileConfig.CreatedAtFinish && !fileConfig.Author) {
-                sortedArticles = Articles.filter(function (number) {
-                    return new Date(fileConfig.CreatedAtFinish) >= number.CreatedAt &&
-                        new Date(fileConfig.CreatedAtStart) <= number.CreatedAt;
-                });
-            } else if (fileConfig.CreatedAtStart && fileConfig.CreatedAtFinish && fileConfig.Author) {
-                sortedArticles = Articles.filter(function (number) {
-                    return new Date(fileConfig.CreatedAtFinish) >= number.CreatedAt &&
-                        new Date(fileConfig.CreatedAtStart) <= number.CreatedAt && fileConfig.Author === number.Author;
-                });
-            } else if (!fileConfig.CreatedAtStart && fileConfig.CreatedAtFinish && fileConfig.Author) {
-                sortedArticles = Articles.filter(function (number) {
-                    return new Date(fileConfig.CreatedAtFinish) >= number.CreatedAt &&
-                        fileConfig.Author === number.Author;
-                });
-            } else if (fileConfig.CreatedAtStart && !fileConfig.CreatedAtFinish && fileConfig.Author) {
-                sortedArticles = Articles.filter(function (number) {
-                    return new Date(fileConfig.CreatedAtStart) <= number.CreatedAt && number.Author;
-                });
-            } else {
-                sortedArticles = Articles.filter(function (number) {
+            if (fileConfig.Author) {
+                sortedArticles = sortedArticles.filter(function (number) {
                     return fileConfig.Author === number.Author;
                 });
             }
-        }
-        else {
-            sortedArticles = Articles.slice(skip, top);
+            if (fileConfig.CreatedAtFinish && fileConfig.Author) {
+                sortedArticles = sortedArticles.filter(function (number) {
+                    return new Date(fileConfig.CreatedAtFinish) >= number.CreatedAt
+                });
+            }
+            if (fileConfig.CreatedAtStart) {
+                sortedArticles = sortedArticles.filter(function (number) {
+                    return new Date(fileConfig.CreatedAtStart) <= number.CreatedAt;
+                });
+            }
         }
         sortedArticles.sort(function (a, b) {
             return a.CreatedAt - b.CreatedAt;
@@ -663,7 +641,7 @@ var newsService = ((function () {
         news.getElementsByClassName('text-summary')[0].value = article.Summary;
         news.getElementsByClassName('text-content')[0].innerHTML = article.Content;
         news.getElementsByClassName('send-news')[0].id = 'send-news';
-        news.getElementsByClassName('send-news')[0].className += ' '+id;
+        news.getElementsByClassName('send-news')[0].className += ' ' + id;
         news.addEventListener('click', handleClickToClose);
         news.addEventListener('click', handleClickOnEditing);
         document.getElementsByClassName('overlay')[0].appendChild(news);
