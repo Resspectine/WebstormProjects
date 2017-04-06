@@ -696,9 +696,8 @@ var newsService = ((function () {
                 addNewsInNewsFeed(item.Id, temp);
             });
             amountOfNews += 4;
-            if (articlesService.length - amountOfNews < 0) {
-                document.getElementsByClassName('load-more')[0].style.display = 'none';
-            }
+        } else {
+            alert("Nothing to load");
         }
     }
 
