@@ -686,6 +686,7 @@ var newsService = ((function () {
         articlesService.removeArticle(id);
         temp.parentNode.removeChild(temp);
         console.log(articlesService.deletedArticles);
+        fillingSelect();
     }
 
     function loadMoreNews() {
@@ -720,8 +721,6 @@ var newsService = ((function () {
         select.innerHTML += '<option> </option>'
     }
 
-    fillingSelect();
-
     document.getElementsByClassName('sort-delete')[0].addEventListener('click', handleClickOnDeleteSort);
 
     document.getElementsByClassName('navigation-bar')[0].addEventListener('click', handleClickOnNavigationBar);
@@ -735,21 +734,26 @@ var newsService = ((function () {
     document.getElementsByClassName('sort-button')[0].addEventListener('click', handleClickOnSortButton);
 
     function checkingUser() {
+        var signIn = document.getElementsByClassName('sign-in')[0];
+        var signUp = document.getElementsByClassName('sign-up')[0];
+        var nickname = document.getElementsByClassName('nickname')[0];
+        var logOut = document.getElementsByClassName('log-out')[0];
+        var linkWhite = document.getElementsByClassName('link-white')[0];
         if (user) {
-            document.getElementsByClassName('sign-in')[0].style.display = 'none';
-            document.getElementsByClassName('sign-up')[0].style.display = 'none';
-            document.getElementsByClassName('nickname')[0].textContent = user;
-            document.getElementsByClassName('nickname')[0].style.display = '';
-            document.getElementsByClassName('log-out')[0].style.display = '';
-            document.getElementsByClassName('link-white')[0].style.display = '';
+            signIn.style.display = 'none';
+            signUp.style.display = 'none';
+            nickname.textContent = user;
+            nickname.style.display = '';
+            logOut.style.display = '';
+            linkWhite.style.display = '';
             show();
         } else {
-            document.getElementsByClassName('link-white')[0].style.display = 'none';
-            document.getElementsByClassName('log-out')[0].style.display = 'none';
-            document.getElementsByClassName('nickname')[0].style.display = 'none';
-            document.getElementsByClassName('nickname')[0].textContent = '';
-            document.getElementsByClassName('sign-in')[0].style.display = '';
-            document.getElementsByClassName('sign-up')[0].style.display = '';
+            signIn.style.display = '';
+            signUp.style.display = '';
+            nickname.style.display = 'none';
+            nickname.textContent = '';
+            logOut.style.display = 'none';
+            linkWhite.style.display = 'none';
             show();
         }
     }
@@ -762,9 +766,11 @@ var newsService = ((function () {
         show: show,
         changeNews: editNews,
         closeWindow: closeWindow,
-        completeChanging: completeEditing
+        completeChanging: completeEditing,
+        fillingSelect: fillingSelect
     }
 })());
 window.onload = function () {
     newsService.show();
+    newsService.fillingSelect();
 };
